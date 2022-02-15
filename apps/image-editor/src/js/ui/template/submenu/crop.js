@@ -52,8 +52,15 @@ export default ({ locale, makeSvgIcon }) => `
         </li>
         <li class="tui-image-editor-partition tui-image-editor-newline">
         </li>
-        <li class="tui-image-editor-partition only-left-right">
-            <div></div>
+        <li class="tui-image-editor-submenu-align">
+            <div class="tui-image-editor-range-wrap tui-image-editor-newline tui-image-editor-cropzone-ranges">
+                <label class="range">${locale.localize('Width')}&nbsp;</label>
+                <input class="tie-width-range-value tui-image-editor-range-value" value="0" /> <label>px</label>
+                <label class="range">${locale.localize('Height')}</label>
+                <input class="tie-height-range-value tui-image-editor-range-value" value="0" /> <label>px</label>
+            </div>
+        </li>
+        <li class="tui-image-editor-partition tui-image-editor-newline">
         </li>
         <li class="tie-crop-button action">
             <div class="tui-image-editor-button apply">

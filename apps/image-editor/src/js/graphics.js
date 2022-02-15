@@ -56,10 +56,14 @@ const backstoreOnly = {
  * @param {Object} [option] - Canvas max width & height of css
  *  @param {number} option.cssMaxWidth - Canvas css-max-width
  *  @param {number} option.cssMaxHeight - Canvas css-max-height
+ *  @param {Object} option.actions - UI actions
  * @ignore
  */
 class Graphics {
-  constructor(element, { cssMaxWidth, cssMaxHeight } = {}) {
+  constructor(element, { cssMaxWidth, cssMaxHeight } = {}, actions = {}, defaultOptions = {}) {
+    this.actions = actions;
+    this.defaultOptions = defaultOptions;
+
     /**
      * Fabric image instance
      * @type {fabric.Image}
@@ -709,11 +713,19 @@ class Graphics {
   }
 
   /**
-   * Get cropped rect
+   * Set cropped rect
    * @param {number} [mode] cropzone rect mode
    */
   setCropzoneRect(mode) {
     this.getComponent(components.CROPPER).setCropzoneRect(mode);
+  }
+
+  /**
+   * Get cropped rect
+   * @param {number} [posInfo] cropzone rect
+   */
+  setCropzonePosition(posInfo) {
+    this.getComponent(components.CROPPER).setCropzonePosition(posInfo);
   }
 
   /**

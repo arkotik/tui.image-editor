@@ -70,6 +70,7 @@ class Cropper extends Component {
   /**
    * Start cropping
    */
+  // eslint-disable-next-line complexity
   start() {
     if (this._cropzone) {
       return;
@@ -85,17 +86,15 @@ class Cropper extends Component {
       canvas,
       extend(
         {
-          left: 0,
-          top: 0,
-          width: 0.5,
-          height: 0.5,
           strokeWidth: 0, // {@link https://github.com/kangax/fabric.js/issues/2860}
           cornerSize: 10,
           cornerColor: 'black',
           fill: 'transparent',
+          actions: this.graphics.actions.crop,
         },
         CROPZONE_DEFAULT_OPTIONS,
-        this.graphics.cropSelectionStyle
+        this.graphics.cropSelectionStyle,
+        this._getDefaultCropSize()
       )
     );
 
@@ -107,6 +106,7 @@ class Cropper extends Component {
 
     fabric.util.addListener(document, 'keydown', this._listeners.keydown);
     fabric.util.addListener(document, 'keyup', this._listeners.keyup);
+    canvas.setActiveObject(this._cropzone);
   }
 
   /**
@@ -180,7 +180,9 @@ class Cropper extends Component {
 
     if (Math.abs(x - this._startX) + Math.abs(y - this._startY) > MOUSE_MOVE_THRESHOLD) {
       canvas.remove(cropzone);
-      cropzone.set(this._calcRectDimensionFromPoint(x, y));
+      const settings = this._calcRectDimensionFromPoint(x, y);
+      cropzone.set(settings);
+      this._runAction('updateUI', settings);
 
       canvas.add(cropzone);
       canvas.setActiveObject(cropzone);
@@ -309,14 +311,72 @@ class Cropper extends Component {
     canvas.selection = false;
     canvas.remove(cropzone);
 
-    cropzone.set(presetRatio ? this._getPresetPropertiesForCropSize(presetRatio) : DEFAULT_OPTION);
+    const settings = presetRatio
+      ? this._getPresetPropertiesForCropSize(presetRatio)
+      : this._getDefaultCropSize();
+    cropzone.set(settings);
+    this._runAction('updateUI', settings);
 
     canvas.add(cropzone);
     canvas.selection = true;
 
-    if (presetRatio) {
-      canvas.setActiveObject(cropzone);
+    canvas.setActiveObject(cropzone);
+  }
+
+  _getDefaultCropSize() {
+    const canvas = this.getCanvas();
+    const maxWidth = canvas.getWidth();
+    const maxHeight = canvas.getHeight();
+    const defaults = extend(
+      { width: maxWidth, height: maxHeight },
+      this.graphics.defaultOptions?.crop || {}
+    );
+    let width = ~~(maxWidth * 0.75);
+    let height = ~~(maxHeight * 0.75);
+    if (defaults.width <= maxWidth && defaults.height <= maxHeight) {
+      width = defaults.width;
+      height = defaults.height;
+    } else {
+      if (defaults.width > maxWidth) {
+        width = maxWidth;
+        height = maxWidth / (defaults.width / defaults.height);
+      }
+      if (defaults.height > maxHeight) {
+        width = maxHeight / (defaults.height / defaults.width);
+        height = maxHeight;
+      }
     }
+
+    return extend(DEFAULT_OPTION, {
+      left: (maxWidth - width) / 2,
+      top: (maxHeight - height) / 2,
+      width,
+      height,
+    });
+  }
+
+  /**
+   * Set a cropzone square
+   * @param {number} [posInfo] - position info
+   * @param {number} [posInfo.left=0] - left
+   * @param {number} [posInfo.top=0] - top
+   * @param {number} [posInfo.width] - width
+   * @param {number} [posInfo.height] - height
+   */
+  setCropzonePosition(posInfo) {
+    const canvas = this.getCanvas();
+    const cropzone = this._cropzone;
+
+    canvas.discardActiveObject();
+    canvas.selection = false;
+    canvas.remove(cropzone);
+
+    cropzone.set(this._getPresetProperties(posInfo));
+
+    canvas.add(cropzone);
+    canvas.selection = true;
+
+    canvas.setActiveObject(cropzone);
   }
 
   /**
@@ -352,6 +412,33 @@ class Cropper extends Component {
   }
 
   /**
+   * get a cropzone square info
+   * @param {number} posInfo - position info
+   * @returns {{presetRatio: number, left: number, top: number, width: number, height: number}}
+   * @private
+   */
+  _getPresetProperties(posInfo) {
+    const canvas = this.getCanvas();
+    const originalWidth = canvas.getWidth();
+    const originalHeight = canvas.getHeight();
+    const { left, top, width, height } = {
+      left: 0,
+      top: 0,
+      width: originalWidth,
+      height: originalHeight,
+      ...(posInfo || {}),
+    };
+
+    return {
+      presetRatio: width / height,
+      top: Math.max(top, 0),
+      left: Math.max(left, 0),
+      width: Math.min(width, originalWidth - left),
+      height: Math.min(height, originalHeight - left),
+    };
+  }
+
+  /**
    * Keydown event handler
    * @param {KeyboardEvent} e - Event object
    * @private
@@ -370,6 +457,13 @@ class Cropper extends Component {
   _onKeyUp(e) {
     if (e.keyCode === keyCodes.SHIFT) {
       this._withShiftKey = false;
+    }
+  }
+
+  _runAction(name, ...args) {
+    const { [name]: action } = this.graphics.actions.crop || {};
+    if (typeof action === 'function') {
+      action(...args);
     }
   }
 }

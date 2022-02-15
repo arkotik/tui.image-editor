@@ -48,12 +48,20 @@
             name: 'SampleImage',
           },
           theme: blackTheme, // or whiteTheme
-          initMenu: 'filter',
+          initMenu: 'crop',
           menuBarPosition: 'bottom',
         },
         cssMaxWidth: 700,
         cssMaxHeight: 500,
         usageStatistics: false,
+        defaultOptions: {
+          crop: {
+            width: 743,
+            height: 993,
+            // width: 1293,
+            // height: 743,
+          },
+        },
       });
       window.onresize = function () {
         imageEditor.ui.resizeEditor();

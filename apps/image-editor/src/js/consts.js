@@ -262,6 +262,8 @@ export const keyCodes = {
   SPACE: 32,
   DIGIT_0: 48,
   DIGIT_9: 57,
+  NUMPAD_DIGIT_0: 96,
+  NUMPAD_DIGIT_9: 105,
 };
 
 /**
@@ -403,6 +405,13 @@ export const emptyCropRectValues = {
 };
 
 export const defaultResizePixelValues = {
+  realTimeEvent: true,
+  min: 32,
+  max: 4088,
+  value: 800,
+};
+
+export const defaultCropPixelValues = {
   realTimeEvent: true,
   min: 32,
   max: 4088,

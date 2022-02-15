@@ -237,6 +237,12 @@ declare namespace tuiImageEditor {
     cssMaxHeight?: number;
     usageStatistics?: boolean;
     selectionStyle?: ISelectionStyleConfig;
+    defaultOptions?: {
+      crop?: {
+        width?: number,
+        height?: number,
+      },
+    },
   }
 
   interface IUIDimension {
@@ -317,6 +323,7 @@ declare namespace tuiImageEditor {
     public setAngle(angle: AngleType, isSilent?: boolean): Promise<AngleType>;
     public setBrush(option: IBrushOptions): void;
     public setCropzoneRect(mode?: number): void;
+    public setCropzonePosition(posInfo?: IRectConfig): void;
     public setDrawingShape(type: string, options?: IShapeOptions): void;
     public setObjectPosition(id: number, posInfo?: IPositionConfig): Promise<void>;
     public setObjectProperties(id: number, keyValue?: IGraphicObjectProps): Promise<void>;

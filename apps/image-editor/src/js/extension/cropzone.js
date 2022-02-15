@@ -342,10 +342,16 @@ const Cropzone = fabric.util.createClass(
       // On scaling cropzone,
       // change real width and height and fix scaleFactor to 1
       this.scale(1).set(settings);
+      this._runAction('updateUI', settings);
 
       this.canvasEventTrigger[events.OBJECT_SCALED](this);
     },
-
+    _runAction(name, ...args) {
+      const { [name]: action } = this.options.actions || {};
+      if (typeof action === 'function') {
+        action(...args);
+      }
+    },
     /**
      * Calc scaled size from mouse pointer with selected corner
      * @param {{x: number, y: number}} pointer - Mouse position
@@ -369,6 +375,7 @@ const Cropzone = fabric.util.createClass(
      * @returns {{width: number, height: number}}
      * @private
      */
+    // eslint-disable-next-line complexity
     adjustRatioCropzoneSize({ width, height, leftMaker, topMaker, maxWidth, maxHeight, scaleTo }) {
       width = maxWidth ? clamp(width, 1, maxWidth) : width;
       height = maxHeight ? clamp(height, 1, maxHeight) : height;

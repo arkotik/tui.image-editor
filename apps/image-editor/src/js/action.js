@@ -357,6 +357,8 @@ export default {
   _cropAction() {
     return extend(
       {
+        getCurrentDimensions: () => this._graphics.getCurrentDimensions(),
+        getCurrentCropzoneRect: () => this._graphics.getCropzoneRect(),
         crop: () => {
           const cropRect = this.getCropzoneRect();
           if (cropRect && !isEmptyCropzone(cropRect)) {
@@ -397,9 +399,24 @@ export default {
               break;
             default:
               this.setCropzoneRect();
-              this.ui.crop.changeApplyButtonStatus(false);
+              // this.ui.crop.changeApplyButtonStatus(false);
               break;
           }
+        },
+        resize: (actor, value) => {
+          const rect = this._graphics.getCropzoneRect();
+          switch (actor) {
+            case 'width':
+              rect.width = value;
+              break;
+            case 'height':
+              rect.height = value;
+              break;
+          }
+          this.setCropzonePosition(rect);
+        },
+        updateUI: (data) => {
+          this.ui.crop.setRectSize(data);
         },
       },
       this._commonAction()

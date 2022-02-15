@@ -197,10 +197,15 @@ class ImageEditor {
      * @type {Graphics}
      * @private
      */
-    this._graphics = new Graphics(this.ui ? this.ui.getEditorArea() : wrapper, {
-      cssMaxWidth: options.cssMaxWidth,
-      cssMaxHeight: options.cssMaxHeight,
-    });
+    this._graphics = new Graphics(
+      this.ui ? this.ui.getEditorArea() : wrapper,
+      {
+        cssMaxWidth: options.cssMaxWidth,
+        cssMaxHeight: options.cssMaxHeight,
+      },
+      this.getActions(),
+      options.defaultOptions
+    );
 
     /**
      * Event handler list
@@ -840,10 +845,18 @@ class ImageEditor {
 
   /**
    * Set the cropping rect
-   * @param {number} [mode] crop rect mode [1, 1.5, 1.3333333333333333, 1.25, 1.7777777777777777]
+   * @param {number} [mode] cropzone rect mode
    */
   setCropzoneRect(mode) {
-    this._graphics.setCropzoneRect(mode);
+    return this._graphics.setCropzoneRect(mode);
+  }
+
+  /**
+   * Set the cropping rect
+   * @param {number} [posInfo] crop rect
+   */
+  setCropzonePosition(posInfo) {
+    this._graphics.setCropzonePosition(posInfo);
   }
 
   /**
