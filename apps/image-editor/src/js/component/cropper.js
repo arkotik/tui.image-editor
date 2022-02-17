@@ -331,20 +331,13 @@ class Cropper extends Component {
       { width: maxWidth, height: maxHeight },
       this.graphics.defaultOptions?.crop || {}
     );
-    let width = ~~(maxWidth * 0.75);
-    let height = ~~(maxHeight * 0.75);
-    if (defaults.width <= maxWidth && defaults.height <= maxHeight) {
+    let width, height;
+    if (defaults.width > maxWidth || defaults.height > maxHeight) {
+      width = ~~(maxWidth * 0.75);
+      height = ~~(maxHeight * 0.75);
+    } else {
       width = defaults.width;
       height = defaults.height;
-    } else {
-      if (defaults.width > maxWidth) {
-        width = maxWidth;
-        height = maxWidth / (defaults.width / defaults.height);
-      }
-      if (defaults.height > maxHeight) {
-        width = maxHeight / (defaults.height / defaults.width);
-        height = maxHeight;
-      }
     }
 
     return extend(DEFAULT_OPTION, {
