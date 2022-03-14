@@ -12,6 +12,7 @@ import {
   SHAPE_FILL_TYPE,
   SHAPE_TYPE,
   emptyCropRectValues,
+  keyCodes,
 } from '@/consts';
 
 const FLOATING_POINT_DIGIT = 2;
@@ -548,4 +549,18 @@ export function isEmptyCropzone(cropRect) {
   const { LEFT, TOP, WIDTH, HEIGHT } = emptyCropRectValues;
 
   return left === LEFT && top === TOP && width === WIDTH && height === HEIGHT;
+}
+
+/**
+ * Check if pressed key is digit
+ * @param {Number} keyCode
+ * @returns {boolean}
+ */
+export function isDigitKey(keyCode) {
+  const { DIGIT_0, DIGIT_9, NUMPAD_DIGIT_0, NUMPAD_DIGIT_9 } = keyCodes;
+
+  return (
+    (keyCode >= DIGIT_0 && keyCode <= DIGIT_9) ||
+    (keyCode >= NUMPAD_DIGIT_0 && keyCode <= NUMPAD_DIGIT_9)
+  );
 }

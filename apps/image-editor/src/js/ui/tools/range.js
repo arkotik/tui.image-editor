@@ -1,6 +1,6 @@
 import forEach from 'tui-code-snippet/collection/forEach';
 import CustomEvents from 'tui-code-snippet/customEvents/customEvents';
-import { toInteger, clamp } from '@/util';
+import { toInteger, clamp, isDigitKey } from '@/util';
 import { keyCodes } from '@/consts';
 
 const INPUT_FILTER_REGEXP = /(-?)([0-9]*)[^0-9]*([0-9]*)/g;
@@ -199,7 +199,8 @@ class Range {
   _changeValueWithInputKeyEvent(event) {
     const { keyCode, target } = event;
 
-    if ([keyCodes.ARROW_UP, keyCodes.ARROW_DOWN].indexOf(keyCode) < 0) {
+    const { ARROW_UP, ARROW_DOWN } = keyCodes;
+    if ([ARROW_UP, ARROW_DOWN].indexOf(keyCode) < 0) {
       return;
     }
 
@@ -239,8 +240,10 @@ class Range {
     clearTimeout(this._userInputTimer);
 
     const { keyCode } = event;
-    if (keyCode < keyCodes.DIGIT_0 || keyCode > keyCodes.DIGIT_9) {
-      event.preventDefault();
+    if (!isDigitKey(keyCode)) {
+      if (![keyCodes.DEL, keyCodes.BACKSPACE].includes(keyCode)) {
+        event.preventDefault();
+      }
 
       return;
     }

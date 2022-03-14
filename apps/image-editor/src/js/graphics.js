@@ -34,6 +34,7 @@ import {
   eventNames as events,
   drawingModes,
   fObjectOptions,
+  OBJ_TYPE,
 } from '@/consts';
 import Resize from '@/component/resize';
 import ResizeDrawingMode from '@/drawingMode/resize';
@@ -358,8 +359,11 @@ class Graphics {
    */
   isReadyRemoveObject() {
     const activeObject = this.getActiveObject();
+    if (activeObject) {
+      return activeObject.type !== OBJ_TYPE.CROPZONE && !activeObject.isEditing;
+    }
 
-    return activeObject && !activeObject.isEditing;
+    return false;
   }
 
   /**
