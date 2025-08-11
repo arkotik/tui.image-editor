@@ -180,7 +180,7 @@ class Cropper extends Component {
 
     if (Math.abs(x - this._startX) + Math.abs(y - this._startY) > MOUSE_MOVE_THRESHOLD) {
       canvas.remove(cropzone);
-      const settings = this._calcRectDimensionFromPoint(x, y);
+      const settings = this._calcRectDimensionFromPoint(x, y, cropzone.presetRatio);
       cropzone.set(settings);
       this._runAction('updateUI', settings);
 
@@ -193,10 +193,11 @@ class Cropper extends Component {
    * Get rect dimension setting from Canvas-Mouse-Position(x, y)
    * @param {number} x - Canvas-Mouse-Position x
    * @param {number} y - Canvas-Mouse-Position Y
+   * @param {number|null} presetRatio - fixed aspect ratio (width/height) of the cropzone (null if not set)
    * @returns {{left: number, top: number, width: number, height: number}}
    * @private
    */
-  _calcRectDimensionFromPoint(x, y) {
+  _calcRectDimensionFromPoint(x, y, presetRatio = null) {
     const canvas = this.getCanvas();
     const canvasWidth = canvas.getWidth();
     const canvasHeight = canvas.getHeight();
@@ -207,7 +208,7 @@ class Cropper extends Component {
     let width = clamp(x, startX, canvasWidth) - left; // (startX <= x(mouse) <= canvasWidth) - left
     let height = clamp(y, startY, canvasHeight) - top; // (startY <= y(mouse) <= canvasHeight) - top
 
-    if (this._withShiftKey) {
+    if (this._withShiftKey && !presetRatio) {
       // make fixed ratio cropzone
       if (width > height) {
         height = width;
@@ -221,6 +222,35 @@ class Cropper extends Component {
 
       if (startY >= y) {
         top = startY - height;
+      }
+    } else if (presetRatio) {
+      // Restrict cropzone to given presetRatio
+      height = width / presetRatio;
+
+      // If moving in a direction where the top left corner moves (ie. top-left, bottom-left, top-right)
+      // the left and/or top values has to be changed based on the new height/width
+      if (startX >= x) {
+        left = clamp(startX - width, 0, canvasWidth);
+      }
+
+      if (startY >= y) {
+        top = clamp(startY - height, 0, canvasHeight);
+      }
+
+      // Check if the new height is too large
+      if (top + height > canvasHeight) {
+        height = canvasHeight - top; // Set height to max available height
+        width = height * presetRatio; // Restrict cropzone to given presetRatio based on the new height
+
+        // If moving in a direction where the top left corner moves (ie. top-left, bottom-left, top-right)
+        // the left and/or top values has to be changed based on the new height/width
+        if (startX >= x) {
+          left = clamp(startX - width, 0, canvasWidth);
+        }
+
+        if (startY >= y) {
+          top = clamp(startY - height, 0, canvasHeight);
+        }
       }
     }
 
@@ -320,7 +350,10 @@ class Cropper extends Component {
     canvas.add(cropzone);
     canvas.selection = true;
 
-    canvas.setActiveObject(cropzone);
+    // check for bugs
+    if (presetRatio) {
+      canvas.setActiveObject(cropzone);
+    }
   }
 
   _getDefaultCropSize() {
